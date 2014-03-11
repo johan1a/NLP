@@ -10,6 +10,7 @@ public class CorpusParser {
 	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
 	TreeMap<String, TreeMap<String, Integer>> wordPOSCount;
 	TreeMap<String, String> mostCommonPos;
+	LinkedList<Bigram> bigrams;
 
 	public void parse(String set) {
 		try {
@@ -18,22 +19,34 @@ public class CorpusParser {
 			POSFrequencies = new TreeMap<String, Integer>();
 			wordPOSCount = new TreeMap<String, TreeMap<String, Integer>>();
 			allWords = new LinkedList<Word>();
+			bigrams = new LinkedList<Bigram>();
+			
+			
 			String[] tags = {};
 			String line = r.readLine();
 			Word word;
-
+			String lastPOS = "BOS", POS;
 			while (line != null) {
 				tags = line.split("\\s+", 7);
 				if (tags.length >= 6) {
 					word = new Word(tags);
 					allWords.add(word);
-
 					incrementWordFrequency(word);
 					incrementPOSFrequency(word);
 					incrementWordPosCount(word);
+
+					POS = word.getPOS();
+					bigrams.add(new Bigram(lastPOS, POS));
+					lastPOS = POS;
+				} else {
+					bigrams.add(new Bigram(lastPOS,"EOS"));
+					lastPOS = "BOS";
 				}
+
 				line = r.readLine();
 			}
+			
+			bigrams.add(new Bigram(lastPOS,"EOS"));
 
 			mostCommonPos = new TreeMap<String, String>();
 			for (String form : wordPOSCount.keySet()) {
@@ -126,6 +139,12 @@ public class CorpusParser {
 			wordFrequencies.put(form, 1);
 		} else {
 			wordFrequencies.put(form, frequency + 1);
+		}
+	}
+
+	public void printBigrams() {
+		for(Bigram b : bigrams){
+			System.out.println(b);
 		}
 	}
 

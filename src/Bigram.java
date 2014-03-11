@@ -14,4 +14,9 @@ public class Bigram {
 	public String getSecond() {
 		return secondPos;
 	}
+
+	@Override
+	public String toString() {
+		return firstPos + " " + secondPos;
+	}
 }

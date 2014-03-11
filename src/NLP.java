@@ -2,10 +2,22 @@ import java.util.LinkedList;
 
 public class NLP {
 
-	private static String trainingSet = "corpus/CoNLL2009-ST-English-train-pos.txt";
-	static String developmentSet = "corpus/CoNLL2009-ST-English-development-pos.txt";
-
+	private String trainingSet = "corpus/CoNLL2009-ST-English-train-pos.txt";
+	private String developmentSet = "corpus/CoNLL2009-ST-English-development-pos.txt";
+	private String testSentence = "corpus/testCorpus.txt";
+	
 	public static void main(String[] args) {
+		NLP nlp = new NLP();
+		nlp.testBigrams();
+	}
+
+	private void testBigrams() {
+		CorpusParser parser = new CorpusParser();
+		parser.parse(testSentence);
+		parser.printBigrams();
+	}
+
+	public void firstTask() {
 		CorpusParser parser = new CorpusParser();
 		parser.parse(trainingSet);
 
@@ -18,7 +30,7 @@ public class NLP {
 
 		Evaluator evaluator = new Evaluator();
 		evaluator.evaluate(words);
-		
+
 		System.out.println(evaluator.getMatchRatio());
 	}
 
