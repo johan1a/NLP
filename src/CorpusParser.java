@@ -8,6 +8,7 @@ import java.util.TreeMap;
 public class CorpusParser {
 	private String fileName = "CoNLL2009-ST-English-trial.txt";
 	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
+	private double PPOSMatchRatio;
 
 	public void parse() {
 		try {
@@ -17,21 +18,35 @@ public class CorpusParser {
 			String[] tags = {};
 			String line = r.readLine();
 			Word word;
+
+			int POSCount = 0;
+			int POSMatchCount = 0;
 			while (line != null) {
-				tags = line.split("\\s+", 6);
+				tags = line.split("\\s+", 7);
 				if (tags.length >= 6) {
 					word = new Word(tags);
 					incrementWordFrequency(word);
 					incrementPOSFrequency(word);
+					POSCount++;
+
+				
+					
+					if (word.getPOS().equals(word.getPPOS())) {
+						POSMatchCount++;
+					}
 				}
 				line = r.readLine();
 			}
+
+			PPOSMatchRatio = POSMatchCount / ((double) POSCount);
+
 			r.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	private void incrementPOSFrequency(Word word) {
@@ -54,7 +69,7 @@ public class CorpusParser {
 		}
 	}
 
-	public void print() {
+	public void printWords() {
 		for (String s : wordFrequencies.keySet()) {
 			System.out.println(s + " " + wordFrequencies.get(s));
 		}

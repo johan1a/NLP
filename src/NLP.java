@@ -6,7 +6,6 @@ public class NLP {
 	public static void main(String[] args) {
 		CorpusParser cp = new CorpusParser();
 		cp.parse();
-		cp.print();
 	}
 
 }
