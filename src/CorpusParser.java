@@ -3,32 +3,30 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 public class CorpusParser {
 	private String fileName = "CoNLL2009-ST-English-trial.txt";
-	private HashMap<String, Integer> wordFrequencies, POSFrequencies;
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
 
 	public void parse() {
 		try {
 			BufferedReader r = new BufferedReader(new FileReader(fileName));
-			wordFrequencies = new HashMap<String, Integer>();
-			POSFrequencies = new HashMap<String, Integer>();
-			String[] line = {};
+			wordFrequencies = new TreeMap<String, Integer>();
+			POSFrequencies = new TreeMap<String, Integer>();
+			String[] tags = {};
+			String line = r.readLine();
 			Word word;
 			while (line != null) {
-				line = r.readLine().split(" ", 6);
-				word = new Word(line);
-				incrementWordFrequency(word);
-				incrementPOSFrequency(word);
+				tags = line.split("\\s+", 6);
+				if (tags.length >= 6) {
+					word = new Word(tags);
+					incrementWordFrequency(word);
+					incrementPOSFrequency(word);
+				}
+				line = r.readLine();
 			}
+			r.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -56,4 +54,9 @@ public class CorpusParser {
 		}
 	}
 
+	public void print() {
+		for (String s : wordFrequencies.keySet()) {
+			System.out.println(s + " " + wordFrequencies.get(s));
+		}
+	}
 }
