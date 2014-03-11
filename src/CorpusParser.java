@@ -2,12 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 public class CorpusParser {
 	private String fileName = "CoNLL2009-ST-English-trial.txt";
 	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
+	TreeMap<String, TreeMap<String, Integer>> confusionMatrix;
 	private double PPOSMatchRatio;
 
 	public void parse() {
@@ -15,6 +15,7 @@ public class CorpusParser {
 			BufferedReader r = new BufferedReader(new FileReader(fileName));
 			wordFrequencies = new TreeMap<String, Integer>();
 			POSFrequencies = new TreeMap<String, Integer>();
+			confusionMatrix = new TreeMap<String, TreeMap<String, Integer>>();
 			String[] tags = {};
 			String line = r.readLine();
 			Word word;
@@ -29,11 +30,13 @@ public class CorpusParser {
 					incrementPOSFrequency(word);
 					POSCount++;
 
-				
-					
-					if (word.getPOS().equals(word.getPPOS())) {
+					String pos = word.getPOS(), pPos = word.getPPOS();
+
+					if (pos.equals(pPos)) {
 						POSMatchCount++;
 					}
+
+					incrementConfusionMatrix(pos, pPos);
 				}
 				line = r.readLine();
 			}
@@ -47,6 +50,19 @@ public class CorpusParser {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void incrementConfusionMatrix(String pos, String pPos) {
+		TreeMap<String, Integer> map = confusionMatrix.get(pos);
+		if (map == null) {
+			map = new TreeMap<String, Integer>();
+			confusionMatrix.put(pos, map);
+		}
+		Integer count = map.get(pPos);
+		if (count == null) {
+			count = 0;
+		}
+		map.put(pPos, count + 1);
 	}
 
 	private void incrementPOSFrequency(Word word) {
@@ -66,6 +82,17 @@ public class CorpusParser {
 			wordFrequencies.put(form, 1);
 		} else {
 			wordFrequencies.put(form, frequency + 1);
+		}
+	}
+
+	public void printConfusionMatrix() {
+		for (String pos : confusionMatrix.keySet()) {
+			TreeMap<String, Integer> map = confusionMatrix.get(pos);
+			System.out.print(pos + ": ");
+			for (String s : map.keySet()) {
+				System.out.print("(" + s + ", " + map.get(s) + ") ");
+			}
+			System.out.println();
 		}
 	}
 
