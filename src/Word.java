@@ -48,4 +48,8 @@ public class Word {
 	public String getPPOS() {
 		return PPOS;
 	}
+
+	public void setPPOS(String string) {
+		PPOS = string;
+	}
 }

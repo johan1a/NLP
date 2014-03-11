@@ -7,9 +7,9 @@ public class Evaluator {
 	private double PPOSMatchRatio;
 
 	public void evaluate(LinkedList<Word> words) {
-
 		confusionMatrix = new TreeMap<String, TreeMap<String, Integer>>();
 		int POSMatchCount = 0, POSCount = words.size();
+		
 		for (Word word : words) {
 			String pos = word.getPOS(), pPos = word.getPPOS();
 
@@ -21,6 +21,10 @@ public class Evaluator {
 
 		PPOSMatchRatio = POSMatchCount / ((double) POSCount);
 	}
+	
+	public double getMatchRatio(){
+		return PPOSMatchRatio;
+	}
 
 	private void incrementConfusionMatrix(String pos, String pPos) {
 		TreeMap<String, Integer> map = confusionMatrix.get(pos);
@@ -28,13 +32,15 @@ public class Evaluator {
 			map = new TreeMap<String, Integer>();
 			confusionMatrix.put(pos, map);
 		}
+		if(pPos == null){
+			pPos = "null";
+		}
 		Integer count = map.get(pPos);
 		if (count == null) {
 			count = 0;
 		}
 		map.put(pPos, count + 1);
 	}
-	
 
 	public void printConfusionMatrix() {
 		for (String pos : confusionMatrix.keySet()) {
