@@ -8,13 +8,6 @@ public class NLP {
 	
 	public static void main(String[] args) {
 		NLP nlp = new NLP();
-		nlp.testBigrams();
-	}
-
-	private void testBigrams() {
-		CorpusParser parser = new CorpusParser();
-		parser.parse(testSentence);
-		parser.printBigrams();
 	}
 
 	public void firstTask() {

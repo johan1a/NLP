@@ -10,7 +10,8 @@ public class CorpusParser {
 	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
 	TreeMap<String, TreeMap<String, Integer>> wordPOSCount;
 	TreeMap<String, String> mostCommonPos;
-	LinkedList<Bigram> bigrams;
+	TreeMap<Bigram, Integer> bigramFrequencies;
+	private TreeMap<FormWithPos, Integer> FormWithPosCount;
 
 	public void parse(String set) {
 		try {
@@ -19,9 +20,9 @@ public class CorpusParser {
 			POSFrequencies = new TreeMap<String, Integer>();
 			wordPOSCount = new TreeMap<String, TreeMap<String, Integer>>();
 			allWords = new LinkedList<Word>();
-			bigrams = new LinkedList<Bigram>();
-			
-			
+			bigramFrequencies = new TreeMap<Bigram, Integer>();
+			FormWithPosCount = new TreeMap<FormWithPos, Integer>();
+
 			String[] tags = {};
 			String line = r.readLine();
 			Word word;
@@ -34,19 +35,20 @@ public class CorpusParser {
 					incrementWordFrequency(word);
 					incrementPOSFrequency(word);
 					incrementWordPosCount(word);
+					incrementFormWithPosCount(word);
 
 					POS = word.getPOS();
-					bigrams.add(new Bigram(lastPOS, POS));
+					incrementBigramCount(lastPOS, POS);
 					lastPOS = POS;
 				} else {
-					bigrams.add(new Bigram(lastPOS,"EOS"));
+					incrementBigramCount(lastPOS, "EOS");
 					lastPOS = "BOS";
 				}
 
 				line = r.readLine();
 			}
-			
-			bigrams.add(new Bigram(lastPOS,"EOS"));
+
+			incrementBigramCount(lastPOS, "EOS");
 
 			mostCommonPos = new TreeMap<String, String>();
 			for (String form : wordPOSCount.keySet()) {
@@ -79,12 +81,49 @@ public class CorpusParser {
 		}
 	}
 
+	/* p(bigram) = count(bigram)/count(t)??? */
+	public TreeMap<Bigram, Double> getBigramProbabilities() {
+		TreeMap<Bigram, Double> p = new TreeMap<Bigram, Double>();
+
+		for (Bigram b : bigramFrequencies.keySet()) {
+			p.put(b,
+					bigramFrequencies.get(b)
+							/ ((double) POSFrequencies.get(b.getSecond())));
+		}
+		return p;
+	}
+
+	/*
+	 * P(wi|ti) = count(wi|ti)/count(ti) ??? w är form, t är pos ???
+	 */
+	public TreeMap<FormWithPos, Double> getWordProbabilities() {
+		TreeMap<FormWithPos, Double> p = new TreeMap<FormWithPos, Double>();
+		for (FormWithPos pwf : FormWithPosCount.keySet()) {
+			p.put(pwf,
+					FormWithPosCount.get(pwf)
+							/ ((double) POSFrequencies.get(pwf.getPOS())));
+		}
+		return p;
+	}
+
 	public TreeMap<String, String> getMostCommonPOSTags() {
 		return mostCommonPos;
 	}
 
 	public LinkedList<Word> getWords() {
 		return allWords;
+	}
+
+	private void incrementFormWithPosCount(Word word) {
+		String form = word.getFORM(), pos = word.getPOS();
+
+		FormWithPos p = new FormWithPos(pos, form);
+		Integer i = FormWithPosCount.get(p);
+		if (i == null) {
+			FormWithPosCount.put(p, 1);
+		} else {
+			FormWithPosCount.put(p, i + 1);
+		}
 	}
 
 	/* Returns the most common POS tag of the word */
@@ -103,6 +142,17 @@ public class CorpusParser {
 			}
 		}
 		return mostCommonPos;
+	}
+
+	/* Increments the number of times the bigram was seen */
+	private void incrementBigramCount(String lastPOS, String pOS) {
+		Bigram b = new Bigram(lastPOS, pOS);
+		Integer i = bigramFrequencies.get(b);
+		if (i == null) {
+			bigramFrequencies.put(b, 1);
+		} else {
+			bigramFrequencies.put(b, i + 1);
+		}
 	}
 
 	/* Increments the amount of times the word has been tagged as pos */
@@ -141,11 +191,4 @@ public class CorpusParser {
 			wordFrequencies.put(form, frequency + 1);
 		}
 	}
-
-	public void printBigrams() {
-		for(Bigram b : bigrams){
-			System.out.println(b);
-		}
-	}
-
 }
