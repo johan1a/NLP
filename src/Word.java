@@ -1,3 +1,4 @@
+
 public class Word {
 	String ID; // the word index in the sentence;
 	String FORM;// the word;
@@ -29,7 +30,7 @@ public class Word {
 		return ID;
 	}
 
-	public String getFORM() {
+	public String getForm() {
 		return FORM;
 	}
 
