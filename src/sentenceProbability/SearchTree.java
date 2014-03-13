@@ -13,6 +13,19 @@ public class SearchTree {
 		allPaths = new HashSet<Path>();
 	}
 
+	public Path getBestPathViterbi() {
+		return null;
+	}
+
+	public Path getBestPath() {
+		return root.getBestPath(new Path("", 1));
+	}
+
+	public void printProbabilities() {
+		root.printProbability(new Path("", 1));
+		System.out.println(allPaths.size());
+	}
+
 	class Node {
 		String form;
 		double probability;
@@ -23,7 +36,7 @@ public class SearchTree {
 			SentenceElement element = sentence.getElement(index);
 			form = element.getForm();
 			this.probability = probability;
-			TreeMap<String, Double> posTags = element.getPostTags();
+			TreeMap<String, Double> posTags = element.getPosTags();
 
 			if (index < sentence.getSize() - 1) {
 
@@ -38,15 +51,11 @@ public class SearchTree {
 				for (String pos : posTags.keySet()) {
 					leafNodeProbabilities.put(pos, posTags.get(pos));
 				}
-
 			}
-
 		}
 
 		public Path getBestPath(Path path) {
-
 			if (leafNodeProbabilities != null) {
-
 				double max = 0;
 				Path bestPath = null;
 				for (String pos : leafNodeProbabilities.keySet()) {
@@ -58,9 +67,7 @@ public class SearchTree {
 						max = p.getProbability();
 					}
 				}
-
 				return bestPath;
-
 			}
 			double max = 0;
 			Path bestPath = null;
@@ -84,7 +91,7 @@ public class SearchTree {
 							path.getProbability() * probability
 									* leafNodeProbabilities.get(pos));
 					allPaths.add(p);
-					//System.out.println(p);
+					// System.out.println(p);
 				}
 			} else {
 				for (String pos : children.keySet()) {
@@ -94,15 +101,6 @@ public class SearchTree {
 				}
 			}
 		}
-	}
-
-	public Path getBestPath() {
-		return root.getBestPath(new Path("", 1));
-	}
-
-	public void printProbabilities() {
-		root.printProbability(new Path("", 1));
-		System.out.println(allPaths.size());
 	}
 
 }

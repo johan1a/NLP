@@ -4,16 +4,12 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class Sentence {
-
 	private ArrayList<SentenceElement> elementList;
+	double probability;
+	private boolean wasTagged;
 
-	public Sentence(TreeMap<String, TreeMap<String, Double>> matrix) {
+	public Sentence() {
 		elementList = new ArrayList<SentenceElement>();
-		for (String form : matrix.keySet()) {
-			SentenceElement element = new SentenceElement(form,
-					matrix.get(form));
-			elementList.add(element);
-		}
 	}
 
 	public SentenceElement getElement(int index) {
@@ -25,4 +21,42 @@ public class Sentence {
 		return elementList.size();
 	}
 
+	public void add(SentenceElement e) {
+		elementList.add(e);
+
+	}
+
+	public ArrayList<SentenceElement> getElements() {
+		return elementList;
+	}
+
+	public String toString() {
+		String s = "";
+		for (SentenceElement e : elementList) {
+			s += e + " ";
+		}
+		return s;
+	}
+
+	public void addPredictedTag(int i, String tag) {
+		elementList.get(i).addPredictedTag(tag);
+
+	}
+
+	public void setProbability(double d) {
+		probability = d;
+
+	}
+
+	public double getProbability() {
+		return probability;
+	}
+
+	public boolean wasTagged() {
+		return wasTagged;
+	}
+
+	public void setWasTagged(boolean sentenceOK) {
+		wasTagged = sentenceOK;
+	}
 }

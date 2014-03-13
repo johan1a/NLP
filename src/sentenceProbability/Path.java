@@ -2,15 +2,15 @@ package sentenceProbability;
 
 public class Path {
 	double probability;
-	String string;
+	String pathString;
 
 	public Path(String string, double d) {
-		this.string = string;
+		this.pathString = string;
 		probability = d;
 	}
 
 	public String getString() {
-		return string;
+		return pathString;
 	}
 
 	public double getProbability() {
@@ -19,7 +19,7 @@ public class Path {
 
 	@Override
 	public String toString() {
-		return string + ": " + probability;
+		return pathString + ": " + probability;
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class Path {
 		long temp;
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((string == null) ? 0 : string.hashCode());
+		result = prime * result + ((pathString == null) ? 0 : pathString.hashCode());
 		return result;
 	}
 
@@ -45,10 +45,10 @@ public class Path {
 		if (Double.doubleToLongBits(probability) != Double
 				.doubleToLongBits(other.probability))
 			return false;
-		if (string == null) {
-			if (other.string != null)
+		if (pathString == null) {
+			if (other.pathString != null)
 				return false;
-		} else if (!string.equals(other.string))
+		} else if (!pathString.equals(other.pathString))
 			return false;
 		return true;
 	}
