@@ -91,7 +91,6 @@ public class SearchTree {
 							path.getProbability() * probability
 									* leafNodeProbabilities.get(pos));
 					allPaths.add(p);
-					// System.out.println(p);
 				}
 			} else {
 				for (String pos : children.keySet()) {

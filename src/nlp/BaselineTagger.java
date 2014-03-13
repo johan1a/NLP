@@ -98,7 +98,7 @@ public class BaselineTagger {
 		boolean sentenceOK;
 		for (Sentence sentence : sentences) {
 			sentenceOK = true;
-			
+
 			for (SentenceElement e : sentence.getElements()) {
 				String form = e.getForm();
 
@@ -112,17 +112,13 @@ public class BaselineTagger {
 					break;
 				}
 			}
-			// System.out.print(sentenceOK + " " +sentence);
 			if (sentenceOK) {
 
 				SearchTreeViterbi tree = new SearchTreeViterbi(sentence,
 						wordProbabilities, bigramProbabilities);
 				Path p = tree.getBestPathViterbi();
 				String[] predictedTags = p.getString().split(" ");
-				//System.out.println(p.getString() + " " + p.getProbability());
-				
-				
-				// System.out.print(" " +p.getProbability());
+
 				sentence.setProbability(p.getProbability());
 
 				for (int i = 0; i < sentence.getSize(); i++) {
@@ -130,9 +126,7 @@ public class BaselineTagger {
 				}
 
 			}
-			// System.out.println();
 			sentence.setWasTagged(sentenceOK);
 		}
-
 	}
 }

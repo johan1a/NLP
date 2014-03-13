@@ -20,9 +20,7 @@ public class SearchTreeViterbi {
 		allPaths = new HashSet<Path>();
 		this.wordProbabilites = wordProbabilities;
 		this.bigramProbabilities = bigramProbabilities2;
-		// for(SentenceElement e: sentence.getElements()){
-		// System.out.println(e);
-		// }
+
 	}
 
 	public Path getBestPathViterbi() {
@@ -69,7 +67,7 @@ public class SearchTreeViterbi {
 			}
 			double max = -1;
 			Double bigramProbability = 0.0, wordProbability = 0.0;
-			// String form = "";
+
 			String bestPos = "";
 			Path bestPath = null;
 
@@ -78,8 +76,7 @@ public class SearchTreeViterbi {
 				for (String pos : leafNodeProbabilities.keySet()) {
 
 					double p;
-					// form = children.get(pos).getForm(); // same for every
-					// child
+
 
 					bigramProbability = bigramProbabilities.get(new Bigram(
 							lastPos, pos));
@@ -110,13 +107,11 @@ public class SearchTreeViterbi {
 			for (String pos : children.keySet()) {
 
 				double p;
-				// form = children.get(pos).getForm(); // same for every child
 
 				bigramProbability = bigramProbabilities.get(new Bigram(lastPos,
 						pos));
 				if (bigramProbability == null) {
 					bigramProbability = 0.0;
-					// System.out.println(form + " " + children.get(pos).form);
 				}
 
 				wordProbability = wordProbabilites.get(new FormWithPos(pos,
@@ -125,7 +120,6 @@ public class SearchTreeViterbi {
 					wordProbability = 0.0;
 
 				}
-				//System.out.println(form + " " + lastPos + " " + pos + " " + bigramProbability + " " +wordProbability);
 				p = bigramProbability * wordProbability;
 				if (p > max) {
 					max = p;
@@ -134,8 +128,6 @@ public class SearchTreeViterbi {
 							path.getProbability() * max);
 				}
 			}
-			// System.out.println(max + " " + lastPos + " " + bestPos);
-			// System.out.println(children.keySet());
 			return children.get(bestPos).getBestPathViterbi(bestPath, bestPos);
 		}
 
@@ -147,7 +139,6 @@ public class SearchTreeViterbi {
 							path.getProbability() * probability
 									* leafNodeProbabilities.get(pos));
 					allPaths.add(p);
-					// System.out.println(p);
 				}
 			} else {
 				for (String pos : children.keySet()) {

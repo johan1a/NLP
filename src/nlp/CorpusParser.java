@@ -1,8 +1,10 @@
 package nlp;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,13 +25,10 @@ public class CorpusParser {
 	TreeMap<String, HashSet<String>> possibleWordPOS;
 	LinkedList<Sentence> sentenceList;
 	final String BOS = "<bos>", EOS = "<eos>";
-	private int n;
 	public boolean testSetParsing = false;
 
-	@SuppressWarnings("unused")
 	public void parse(String set, int n) {
 		try {
-
 			BufferedReader r = new BufferedReader(new FileReader(set));
 			wordFrequencies = new TreeMap<String, Integer>();
 			POSFrequencies = new TreeMap<String, Integer>();
@@ -39,7 +38,6 @@ public class CorpusParser {
 			FormWithPosCount = new HashMap<FormWithPos, Integer>();
 			possibleWordPOS = new TreeMap<String, HashSet<String>>();
 			sentenceList = new LinkedList<Sentence>();
-			this.n = n;
 
 			String line = r.readLine();
 			Word word;
@@ -184,7 +182,7 @@ public class CorpusParser {
 		}
 	}
 
-	/* p(bigram) = count(bigram)/count(t)??? */
+	/* p(bigram) = count(bigram)/count(t) */
 	public HashMap<Bigram, Double> getBigramProbabilities() {
 		HashMap<Bigram, Double> p = new HashMap<Bigram, Double>();
 
@@ -197,7 +195,7 @@ public class CorpusParser {
 	}
 
 	/*
-	 * P(wi|ti) = count(wi|ti)/count(ti) ??? w är form, t är pos ???
+	 * P(wi|ti) = count(wi|ti)/count(ti)
 	 */
 	public HashMap<FormWithPos, Double> getWordProbabilities() {
 		HashMap<FormWithPos, Double> p = new HashMap<FormWithPos, Double>();
@@ -307,5 +305,29 @@ public class CorpusParser {
 
 	public LinkedList<Sentence> getSentences() {
 		return sentenceList;
+	}
+
+	public static void saveOutput(String file, LinkedList<Sentence> sentences) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			for (Sentence sentence : sentences) {
+				int index = 1;
+				if (sentence.wasTagged()) {
+					for (SentenceElement e : sentence.getElements()) {
+						if (e.getForm().equals("<bos>")) {
+							continue;
+						}
+						writer.write(index + " " + e.getForm() + " "
+								+ e.getPredictedPos());
+						index++;
+						writer.write("\n");
+					}
+					writer.write("\n");
+				}
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
