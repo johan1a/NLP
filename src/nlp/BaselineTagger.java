@@ -39,8 +39,7 @@ public class BaselineTagger {
 		System.out.println("Tagging Viterbi...");
 		sentence = new Sentence();
 
-		for (String w : words) {
-			String form = w;
+		for (String form : words) {
 			SentenceElement e = new SentenceElement(form, "");
 			sentence.add(e);
 
@@ -113,7 +112,6 @@ public class BaselineTagger {
 				}
 			}
 			if (sentenceOK) {
-
 				SearchTreeViterbi tree = new SearchTreeViterbi(sentence,
 						wordProbabilities, bigramProbabilities);
 				Path p = tree.getBestPathViterbi();
@@ -124,7 +122,6 @@ public class BaselineTagger {
 				for (int i = 0; i < sentence.getSize(); i++) {
 					sentence.addPredictedTag(i, predictedTags[i]);
 				}
-
 			}
 			sentence.setWasTagged(sentenceOK);
 		}

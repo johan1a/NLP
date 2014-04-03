@@ -16,7 +16,7 @@ public class NLP {
 	}
 
 	public static void main(String[] args) {
-		NLP nlp = new NLP(10);
+		NLP nlp = new NLP(9);
 
 		boolean tag = false;
 		boolean eval = false;
@@ -52,7 +52,7 @@ public class NLP {
 				parser.getMostCommonPOSTags(), parser.getWordProbabilities(),
 				parser.getPossiblePos(), parser.getBigramProbabilities());
 
-		parser.testSetParsing = true;
+		parser.setTestSetParsing(true);
 		parser.parse(testSet, n);
 		LinkedList<Sentence> sentences = parser.getSentences();
 		tagger.tagViterbiSentences(sentences);
@@ -78,5 +78,4 @@ public class NLP {
 		System.out.println("Prediction ratio: "
 				+ Evaluator.evaluateSentences(sentences));
 	}
-
 }

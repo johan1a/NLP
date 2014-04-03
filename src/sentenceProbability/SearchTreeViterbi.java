@@ -2,6 +2,7 @@ package sentenceProbability;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 import nlp.Bigram;
@@ -20,7 +21,6 @@ public class SearchTreeViterbi {
 		allPaths = new HashSet<Path>();
 		this.wordProbabilites = wordProbabilities;
 		this.bigramProbabilities = bigramProbabilities2;
-
 	}
 
 	public Path getBestPathViterbi() {
@@ -49,9 +49,8 @@ public class SearchTreeViterbi {
 					children.put(pos,
 							new Node(index + 1, sentence, posTags.get(pos)));
 				}
-			} else if (index == sentence.getSize() - 1) {
+			} else {
 				leafNodeProbabilities = new HashMap<String, Double>();
-
 				for (String pos : posTags.keySet()) {
 					leafNodeProbabilities.put(pos, posTags.get(pos));
 				}
@@ -60,7 +59,6 @@ public class SearchTreeViterbi {
 
 		@SuppressWarnings("synthetic-access")
 		public Path getBestPathViterbi(Path path, String lastPos) {
-
 			if (this.equals(root)) {
 				return children.get("<bos>").getBestPathViterbi(
 						new Path("<bos> ", 1), "<bos>");
@@ -71,55 +69,24 @@ public class SearchTreeViterbi {
 			String bestPos = "";
 			Path bestPath = null;
 
-			/* If we are at a leaf node */
-			if (leafNodeProbabilities != null) {
-				for (String pos : leafNodeProbabilities.keySet()) {
+			Set<String> posTags;
 
-					double p;
-
-
-					bigramProbability = bigramProbabilities.get(new Bigram(
-							lastPos, pos));
-					if (bigramProbability == null) {
-						bigramProbability = 0.0;
-
-					}
-
-					wordProbability = wordProbabilites.get(new FormWithPos(pos,
-							form));
-					if (wordProbability == null) {
-						wordProbability = 0.0;
-					}
-
-					p = bigramProbability * wordProbability;
-					if (p > max) {
-						max = p;
-						bestPos = pos;
-						bestPath = new Path(path.getString() + bestPos + " ",
-								path.getProbability() * max);
-					}
-				}
-				return new Path(path.getString() + bestPos + " ",
-						path.getProbability() * max);
+			if (isLeaf()) {
+				posTags = leafNodeProbabilities.keySet();
+			} else {
+				posTags = children.keySet();
 			}
-
-			/* Otherwise */
-			for (String pos : children.keySet()) {
-
-				double p;
-
+			
+			double p;
+			for (String pos : posTags) {
 				bigramProbability = bigramProbabilities.get(new Bigram(lastPos,
 						pos));
-				if (bigramProbability == null) {
-					bigramProbability = 0.0;
-				}
-
 				wordProbability = wordProbabilites.get(new FormWithPos(pos,
 						form));
-				if (wordProbability == null) {
-					wordProbability = 0.0;
 
-				}
+				bigramProbability = checkNull(bigramProbability);
+				wordProbability = checkNull(wordProbability);
+
 				p = bigramProbability * wordProbability;
 				if (p > max) {
 					max = p;
@@ -128,12 +95,24 @@ public class SearchTreeViterbi {
 							path.getProbability() * max);
 				}
 			}
+			if (isLeaf()) {
+				return new Path(path.getString() + bestPos + " ",
+						path.getProbability() * max);
+			}
 			return children.get(bestPos).getBestPathViterbi(bestPath, bestPos);
+		}
+
+		private Double checkNull(Double d) {
+			return d == null ? 0.0 : d;
+		}
+
+		private boolean isLeaf() {
+			return leafNodeProbabilities != null;
 		}
 
 		@SuppressWarnings("synthetic-access")
 		public void printProbability(Path path) {
-			if (leafNodeProbabilities != null) {
+			if (isLeaf()) {
 				for (String pos : leafNodeProbabilities.keySet()) {
 					Path p = new Path(path.getString() + " " + pos,
 							path.getProbability() * probability

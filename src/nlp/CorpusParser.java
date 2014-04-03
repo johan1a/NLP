@@ -16,153 +16,66 @@ import sentenceProbability.Sentence;
 import sentenceProbability.SentenceElement;
 
 public class CorpusParser {
-	LinkedList<Word> allWords;
+	private final static String BOS = "<bos>", EOS = "<eos>";
+	private final static String[] BOS_TAGS = { "0", BOS, BOS, BOS, BOS, BOS };
+	private final static String[] EOS_TAGS = { "-1", EOS, EOS, EOS, EOS, EOS };
+	private static final int TAGS_PER_WORD = 6;
+	
+	private LinkedList<Word> allWords;
 	private TreeMap<String, Integer> wordFrequencies, POSFrequencies;
-	TreeMap<String, TreeMap<String, Integer>> wordPOSCount;
-	TreeMap<String, String> mostCommonPos;
-	HashMap<Bigram, Integer> bigramFrequencies;
+	private TreeMap<String, TreeMap<String, Integer>> wordPOSCount;
+	private TreeMap<String, String> mostCommonPos;
+	private HashMap<Bigram, Integer> bigramFrequencies;
 	private HashMap<FormWithPos, Integer> FormWithPosCount;
-	TreeMap<String, HashSet<String>> possibleWordPOS;
-	LinkedList<Sentence> sentenceList;
-	final String BOS = "<bos>", EOS = "<eos>";
-	public boolean testSetParsing = false;
+	private TreeMap<String, HashSet<String>> possibleWordPOS;
+	private LinkedList<Sentence> sentenceList;
 
-	public void parse(String set, int n) {
+	private boolean testSetParsing = false;
+	private int sentenceLength;
+	private String prevPOS;
+	private String[] tags;
+	private Sentence currentSentence;
+
+	public void parse(String fileName, int n) {
+		initDataStructure();
 		try {
-			BufferedReader r = new BufferedReader(new FileReader(set));
-			wordFrequencies = new TreeMap<String, Integer>();
-			POSFrequencies = new TreeMap<String, Integer>();
-			wordPOSCount = new TreeMap<String, TreeMap<String, Integer>>();
-			allWords = new LinkedList<Word>();
-			bigramFrequencies = new HashMap<Bigram, Integer>();
-			FormWithPosCount = new HashMap<FormWithPos, Integer>();
-			possibleWordPOS = new TreeMap<String, HashSet<String>>();
-			sentenceList = new LinkedList<Sentence>();
+			BufferedReader r = new BufferedReader(new FileReader(fileName));
+			startNewSentence();
+			prevPOS = EOS;
+			tags = BOS_TAGS;
+			collectWordData(tags);
 
+			System.out.println("Parsing corpus: " + fileName);
 			String line = r.readLine();
-			Word word;
-			Sentence sentence = new Sentence();
-			int sentenceLength = 1;
-
-			String POS, lastPOS;
-			String[] tags = { "0", BOS, BOS, BOS, BOS, BOS };
-			word = new Word(tags);
-			allWords.add(word);
-			incrementWordFrequency(word);
-			POS = word.getPOS();
-			lastPOS = BOS;
-			if (!testSetParsing) {
-				incrementWordPosCount(word);
-				incrementFormWithPosCount(word);
-				incrementPOSFrequency(POS);
-				addPossiblePOS(word.getForm(), POS);
-				sentence.add(new SentenceElement(word.getForm(), POS));
-			} else {
-				sentence.add(new SentenceElement(word.getForm(), ""));
-			}
-
-			System.out.println("Parsing corpus: " + set);
 			while (line != null) {
-				tags = line.toLowerCase().split("\\s+", 7);
-				if (tags.length >= 4) {
-					word = new Word(tags);
-					POS = word.getPOS();
-
-					allWords.add(word);
-
-					if (!testSetParsing) {
-						addPossiblePOS(word.getForm(), POS);
-						incrementWordFrequency(word);
-						incrementWordPosCount(word);
-						incrementFormWithPosCount(word);
-						incrementBigramCount(lastPOS, POS);
-						incrementPOSFrequency(POS);
-						sentence.add(new SentenceElement(word.getForm(), POS));
-
-					} else {
-						sentence.add(new SentenceElement(word.getForm(), ""));
-					}
-					lastPOS = POS;
-					sentenceLength++;
+				tags = line.toLowerCase().split("\\s+", TAGS_PER_WORD);
+				if (!line.isEmpty()) {
+					collectWordData(tags);
+					line = r.readLine();
 				} else {
+					tags = EOS_TAGS;
+					collectWordData(tags);
 
-					if (sentenceLength < n) {
-						sentenceList.add(sentence);
-					}
-					sentence = new Sentence();
-					sentenceLength = 0;
-					String[] EOStags = { "-1", EOS, EOS, EOS, EOS, EOS };
-					tags = EOStags;
-					word = new Word(tags);
-					POS = word.getPOS();
-
-					allWords.add(word);
-
-					if (!testSetParsing) {
-						incrementWordFrequency(word);
-						incrementWordPosCount(word);
-						incrementFormWithPosCount(word);
-						incrementPOSFrequency(POS);
-						incrementBigramCount(lastPOS, POS);
-						addPossiblePOS(word.getForm(), POS);
+					/* length without BOS and EOS */
+					if (sentenceLength - 2 < n) {
+						sentenceList.add(currentSentence);
 					}
 
-				}
-				String lastLine = line;
-				line = r.readLine();
-
-				if (line != null
-						&& (lastLine.isEmpty() || lastLine.startsWith("\t")
-								&& !line.isEmpty())) {
-
-					String[] BOStags = { "0", BOS, BOS, BOS, BOS, BOS };
-					tags = BOStags;
-					word = new Word(tags);
-					allWords.add(word);
-					POS = word.getPOS();
-					if (!testSetParsing) {
-						incrementWordFrequency(word);
-						incrementWordPosCount(word);
-						incrementFormWithPosCount(word);
-						incrementPOSFrequency(POS);
-						addPossiblePOS(word.getForm(), POS);
-						sentence.add(new SentenceElement(BOS, POS));
-					} else {
-						sentence.add(new SentenceElement(BOS, ""));
-
+					line = r.readLine();
+					if (line != null) {
+						startNewSentence();
+						tags = BOS_TAGS;
+						collectWordData(tags);
 					}
-					lastPOS = BOS;
-
-					sentenceLength++;
 				}
 			}
-
-			mostCommonPos = new TreeMap<String, String>();
-			for (String form : wordPOSCount.keySet()) {
-				mostCommonPos.put(form, getMostCommonWordPOS(form));
-			}
-
+			calculateMostCommonPos();
 			r.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-	}
-
-	TreeMap<String, HashSet<String>> getPossiblePos() {
-		return possibleWordPOS;
-	}
-
-	private void addPossiblePOS(String form, String pOS) {
-		HashSet<String> set = possibleWordPOS.get(form);
-
-		if (set == null) {
-			set = new HashSet<String>();
-		}
-		set.add(pOS);
-		possibleWordPOS.put(form, set);
 	}
 
 	public void printWords() {
@@ -180,6 +93,10 @@ public class CorpusParser {
 			}
 			System.out.println();
 		}
+	}
+
+	public TreeMap<String, HashSet<String>> getPossiblePos() {
+		return possibleWordPOS;
 	}
 
 	/* p(bigram) = count(bigram)/count(t) */
@@ -217,6 +134,99 @@ public class CorpusParser {
 
 	public Set<String> getAllPOSTags() {
 		return POSFrequencies.keySet();
+	}
+
+	public HashMap<Bigram, Integer> getBigramFrequencies() {
+		return bigramFrequencies;
+	}
+
+	public LinkedList<Sentence> getSentences() {
+		return sentenceList;
+	}
+
+	public static void saveOutput(String file, LinkedList<Sentence> sentences) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			for (Sentence sentence : sentences) {
+				int index = 1;
+				if (sentence.wasTagged()) {
+					for (SentenceElement e : sentence.getElements()) {
+						if (e.getForm().equals("<bos>")) {
+							continue;
+						}
+						writer.write(index + " " + e.getForm() + " "
+								+ e.getPredictedPos());
+						index++;
+						writer.write("\n");
+					}
+					writer.write("\n");
+				}
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isTestSetParsing() {
+		return testSetParsing;
+	}
+
+	public void setTestSetParsing(boolean testSetParsing) {
+		this.testSetParsing = testSetParsing;
+	}
+
+	private void calculateMostCommonPos() {
+		mostCommonPos = new TreeMap<String, String>();
+		for (String form : wordPOSCount.keySet()) {
+			mostCommonPos.put(form, getMostCommonWordPOS(form));
+		}
+	}
+
+	private void startNewSentence() {
+		currentSentence = new Sentence();
+		sentenceLength = 0;
+	}
+
+	/* Collects data from a word using the given tags */
+	private void collectWordData(String[] tags) {
+		Word word = new Word(tags);
+		String POS = word.getPOS();
+		allWords.add(word);
+		if (isTestSetParsing()) {
+			currentSentence.add(new SentenceElement(word.getForm(), ""));
+		} else {
+			addPossiblePOS(word, POS);
+			incrementWordFrequency(word);
+			incrementWordPosCount(word);
+			incrementFormWithPosCount(word);
+			incrementBigramCount(prevPOS, POS);
+			incrementPOSFrequency(POS);
+			currentSentence.add(new SentenceElement(word.getForm(), POS));
+		}
+		prevPOS = word.getPOS();
+		sentenceLength++;
+	}
+
+	private void initDataStructure() {
+		wordFrequencies = new TreeMap<String, Integer>();
+		POSFrequencies = new TreeMap<String, Integer>();
+		wordPOSCount = new TreeMap<String, TreeMap<String, Integer>>();
+		allWords = new LinkedList<Word>();
+		bigramFrequencies = new HashMap<Bigram, Integer>();
+		FormWithPosCount = new HashMap<FormWithPos, Integer>();
+		possibleWordPOS = new TreeMap<String, HashSet<String>>();
+		sentenceList = new LinkedList<Sentence>();
+	}
+
+	private void addPossiblePOS(Word word, String pOS) {
+		String form = word.getForm();
+		HashSet<String> set = possibleWordPOS.get(form);
+		if (set == null) {
+			set = new HashSet<String>();
+		}
+		set.add(pOS);
+		possibleWordPOS.put(form, set);
 	}
 
 	private void incrementFormWithPosCount(Word word) {
@@ -295,39 +305,6 @@ public class CorpusParser {
 			wordFrequencies.put(form, 1);
 		} else {
 			wordFrequencies.put(form, frequency + 1);
-		}
-	}
-
-	public HashMap<Bigram, Integer> getBigramFrequencies() {
-		return bigramFrequencies;
-
-	}
-
-	public LinkedList<Sentence> getSentences() {
-		return sentenceList;
-	}
-
-	public static void saveOutput(String file, LinkedList<Sentence> sentences) {
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-			for (Sentence sentence : sentences) {
-				int index = 1;
-				if (sentence.wasTagged()) {
-					for (SentenceElement e : sentence.getElements()) {
-						if (e.getForm().equals("<bos>")) {
-							continue;
-						}
-						writer.write(index + " " + e.getForm() + " "
-								+ e.getPredictedPos());
-						index++;
-						writer.write("\n");
-					}
-					writer.write("\n");
-				}
-			}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }

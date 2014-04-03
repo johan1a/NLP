@@ -14,7 +14,6 @@ public class Sentence {
 
 	public SentenceElement getElement(int index) {
 		return elementList.get(index);
-
 	}
 
 	public int getSize() {
@@ -40,12 +39,10 @@ public class Sentence {
 
 	public void addPredictedTag(int i, String tag) {
 		elementList.get(i).addPredictedTag(tag);
-
 	}
 
 	public void setProbability(double d) {
 		probability = d;
-
 	}
 
 	public double getProbability() {
