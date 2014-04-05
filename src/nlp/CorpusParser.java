@@ -49,7 +49,7 @@ public class CorpusParser {
 			String line = r.readLine();
 			while (line != null) {
 				tags = line.toLowerCase().split("\\s+", TAGS_PER_WORD);
-				if (!line.isEmpty()) {
+				if (!isEmpty(line)) {
 					collectWordData(tags);
 					line = r.readLine();
 				} else {
@@ -59,6 +59,7 @@ public class CorpusParser {
 					/* length without BOS and EOS */
 					if (sentenceLength - 2 < n) {
 						sentenceList.add(currentSentence);
+
 					}
 
 					line = r.readLine();
@@ -76,6 +77,10 @@ public class CorpusParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private boolean isEmpty(String line) {
+		return line.isEmpty() || line.startsWith("\t");
 	}
 
 	public void printWords() {

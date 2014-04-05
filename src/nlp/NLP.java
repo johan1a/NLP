@@ -39,9 +39,38 @@ public class NLP {
 		}
 		NLP nlp = new NLP(maxSentenceLength);
 		if (tag) {
-			nlp.tagTestSet();
+			nlp.tagCorpus(true);
 		} else if (eval) {
-			nlp.evaluateTagger();
+			nlp.tagCorpus(false);
+		}
+	}
+
+	/*
+	 * Tags the test set and saves the output if testSetParsing is true. If not,
+	 * the development set is tagged and the tagger is then evaluated without
+	 * saving any output.
+	 */
+	public void tagCorpus(boolean testSetParsing) {
+		CorpusParser parser = new CorpusParser();
+		parser.parse(trainingSet, n);
+		ViterbiTagger tagger = new ViterbiTagger(parser.getMostCommonPOSTags(),
+				parser.getWordProbabilities(), parser.getPossiblePos(),
+				parser.getBigramProbabilities());
+
+		parser.setTestSetParsing(testSetParsing);
+		if (testSetParsing) {
+			parser.parse(testSet, n);
+		} else {
+			parser.parse(developmentSet, n);
+		}
+		LinkedList<Sentence> sentences = parser.getSentences();
+		tagger.tagSentences(sentences);
+		if (testSetParsing) {
+			CorpusParser.saveOutput(taggedTestSet, sentences);
+			System.out.println("Tagging done");
+		} else {
+			System.out.println("Prediction ratio: "
+					+ Evaluator.evaluateSentences(sentences));
 		}
 	}
 

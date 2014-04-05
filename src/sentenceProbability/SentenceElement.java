@@ -3,7 +3,8 @@ package sentenceProbability;
 import java.util.TreeMap;
 
 public class SentenceElement {
-	private String form, manualPOS, predictedPOS = "";
+	private static String NO_TAG = "-";
+	private String form, manualPOS, predictedPOS = NO_TAG;
 	private TreeMap<String, Double> posList;
 
 	public SentenceElement(String form, String pOS) {
@@ -37,7 +38,11 @@ public class SentenceElement {
 	}
 
 	public String getPredictedPos() {
-		return predictedPOS;
+		if (hasAlphabeticalForm()) {
+			return predictedPOS;
+		}
+		return NO_TAG;
+
 	}
 
 	public boolean hasAlphabeticalForm() {

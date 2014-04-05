@@ -76,11 +76,17 @@ public class Word {
 	public Word(String[] line) {
 		ID = line[0];
 		FORM = line[1];
-		LEMMA = line[2];
-		PLEMMA = line[3];
-		if(line.length > 4){
-			POS = line[4];
-			PPOS = line[5];
+		if (line.length > 2) {
+			LEMMA = line[2];
+			if (line.length > 3) {
+				PLEMMA = line[3];
+				if (line.length > 4) {
+					POS = line[4];
+					if (line.length > 5) {
+						PPOS = line[5];
+					}
+				}
+			}
 		}
 	}
 

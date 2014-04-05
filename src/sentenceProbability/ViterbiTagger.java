@@ -36,6 +36,8 @@ public class ViterbiTagger {
 		Double bigramProbability, wordProbability;
 		String bestPos, lastPos;
 
+		
+		
 		for (int i = 1; i < sentence.getSize() - 1; i++) {
 			SentenceElement e = sentence.getElement(i);
 			String form = e.getForm();
