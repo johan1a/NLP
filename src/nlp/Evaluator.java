@@ -14,16 +14,21 @@ public class Evaluator {
 	public static double evaluateSentences(LinkedList<Sentence> sentences) {
 		int pOSMatchCount = 0, pOSCount = 0;
 		System.out.println("Evaluating...");
+		SentenceElement e;
 		for (Sentence sentence : sentences) {
 			if (sentence.wasTagged()) {
-				for (SentenceElement e : sentence.getElements()) {
+				/* Don't evaluate <bos> and <eos> */
+				for (int i = 1; i < sentence.getSize() - 1; i++) {
+					e = sentence.getElement(i);
+					if (e.hasAlphabeticalForm()) {
 
-
-					String pos = e.getManualPos(), pPos = e.getPredictedPos();
-
-					pOSCount++;
-					if (pos.equals(pPos)) {
-						pOSMatchCount++;
+						String pos = e.getManualPos(), pPos = e
+								.getPredictedPos();
+					//	System.out.println(pos + " " + pPos);
+						pOSCount++;
+						if (pos.equals(pPos)) {
+							pOSMatchCount++;
+						}
 					}
 				}
 			}

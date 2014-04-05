@@ -34,11 +34,16 @@ public class Sentence {
 		for (SentenceElement e : elementList) {
 			s += e + " ";
 		}
+		s += "\n";
+		for (SentenceElement e : elementList) {
+			s += e.getPredictedPos() + " ";
+		}
+		s += "\n";
 		return s;
 	}
 
 	public void addPredictedTag(int i, String tag) {
-		elementList.get(i).addPredictedTag(tag);
+		elementList.get(i).setPredictedTag(tag);
 	}
 
 	public void setProbability(double d) {

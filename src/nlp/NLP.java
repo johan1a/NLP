@@ -3,12 +3,14 @@ package nlp;
 import java.util.LinkedList;
 
 import sentenceProbability.Sentence;
+import sentenceProbability.ViterbiTagger;
 
 public class NLP {
 	private String trainingSet = "corpus/CoNLL2009-ST-English-train-pos.txt";
 	private String developmentSet = "corpus/CoNLL2009-ST-English-development-pos.txt";
 	private String testSet = "corpus/CoNLL2009-ST-test-words.txt";
 	private String taggedTestSet = "corpus/taggedTestSet.txt";
+	private String testCorpus = "corpus/testCorpus.txt";
 	int n;
 
 	public NLP(int k) {
@@ -16,7 +18,7 @@ public class NLP {
 	}
 
 	public static void main(String[] args) {
-		NLP nlp = new NLP(9);
+		int maxSentenceLength = 9;
 
 		boolean tag = false;
 		boolean eval = false;
@@ -28,14 +30,14 @@ public class NLP {
 				} else if (cmd.equals("-eval")) {
 					eval = true;
 				} else if (cmd.equals("-n")) {
-					nlp = new NLP(Integer.parseInt(args[i + 1]));
+					maxSentenceLength = Integer.parseInt(args[i + 1]);
 					i++;
 				}
 			}
 		} else {
 			System.out.println("Enter -tag to tag, -eval to evaluate.");
 		}
-
+		NLP nlp = new NLP(maxSentenceLength);
 		if (tag) {
 			nlp.tagTestSet();
 		} else if (eval) {
@@ -45,9 +47,7 @@ public class NLP {
 
 	public void tagTestSet() {
 		CorpusParser parser = new CorpusParser();
-
 		parser.parse(trainingSet, n);
-
 		BaselineTagger tagger = new BaselineTagger(
 				parser.getMostCommonPOSTags(), parser.getWordProbabilities(),
 				parser.getPossiblePos(), parser.getBigramProbabilities());
@@ -63,17 +63,15 @@ public class NLP {
 
 	public void evaluateTagger() {
 		CorpusParser parser = new CorpusParser();
-
 		parser.parse(trainingSet, n);
-
-		BaselineTagger tagger = new BaselineTagger(
-				parser.getMostCommonPOSTags(), parser.getWordProbabilities(),
-				parser.getPossiblePos(), parser.getBigramProbabilities());
+		ViterbiTagger tagger = new ViterbiTagger(parser.getMostCommonPOSTags(),
+				parser.getWordProbabilities(), parser.getPossiblePos(),
+				parser.getBigramProbabilities());
 
 		parser.parse(developmentSet, n);
 		LinkedList<Sentence> sentences = parser.getSentences();
 
-		tagger.tagViterbiSentences(sentences);
+		tagger.tagSentences(sentences);
 
 		System.out.println("Prediction ratio: "
 				+ Evaluator.evaluateSentences(sentences));
