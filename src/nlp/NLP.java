@@ -73,36 +73,4 @@ public class NLP {
 					+ Evaluator.evaluateSentences(sentences));
 		}
 	}
-
-	public void tagTestSet() {
-		CorpusParser parser = new CorpusParser();
-		parser.parse(trainingSet, n);
-		BaselineTagger tagger = new BaselineTagger(
-				parser.getMostCommonPOSTags(), parser.getWordProbabilities(),
-				parser.getPossiblePos(), parser.getBigramProbabilities());
-
-		parser.setTestSetParsing(true);
-		parser.parse(testSet, n);
-		LinkedList<Sentence> sentences = parser.getSentences();
-		tagger.tagViterbiSentences(sentences);
-
-		CorpusParser.saveOutput(taggedTestSet, sentences);
-		System.out.println("Tagging done");
-	}
-
-	public void evaluateTagger() {
-		CorpusParser parser = new CorpusParser();
-		parser.parse(trainingSet, n);
-		ViterbiTagger tagger = new ViterbiTagger(parser.getMostCommonPOSTags(),
-				parser.getWordProbabilities(), parser.getPossiblePos(),
-				parser.getBigramProbabilities());
-
-		parser.parse(developmentSet, n);
-		LinkedList<Sentence> sentences = parser.getSentences();
-
-		tagger.tagSentences(sentences);
-
-		System.out.println("Prediction ratio: "
-				+ Evaluator.evaluateSentences(sentences));
-	}
 }
