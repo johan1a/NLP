@@ -24,7 +24,6 @@ public class Evaluator {
 
 						String pos = e.getManualPos(), pPos = e
 								.getPredictedPos();
-					//	System.out.println(pos + " " + pPos);
 						pOSCount++;
 						if (pos.equals(pPos)) {
 							pOSMatchCount++;
@@ -50,7 +49,6 @@ public class Evaluator {
 			}
 			incrementConfusionMatrix(pos, pPos);
 		}
-
 		PPOSMatchRatio = POSMatchCount / ((double) POSCount);
 	}
 

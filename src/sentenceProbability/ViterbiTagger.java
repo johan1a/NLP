@@ -35,10 +35,12 @@ public class ViterbiTagger {
 		double sentenceProbability = 1, tagProbability, maxProbability;
 		Double bigramProbability, wordProbability;
 		String bestPos, lastPos;
+		boolean encountedError = false;
 
-		
-		
 		for (int i = 1; i < sentence.getSize() - 1; i++) {
+			if (encountedError) {
+				break;
+			}
 			SentenceElement e = sentence.getElement(i);
 			String form = e.getForm();
 
@@ -67,12 +69,16 @@ public class ViterbiTagger {
 				}
 				e.setPredictedTag(bestPos);
 				sentenceProbability = sentenceProbability * maxProbability;
-				sentence.setWasTagged(true);
+
 			} else {
-				sentence.setWasTagged(false);
+				encountedError = true;
 			}
 		}
-
+		if (encountedError) {
+			sentence.setWasTagged(false);
+		} else {
+			sentence.setWasTagged(true);
+		}
 	}
 
 	private static Double checkNull(Double d) {

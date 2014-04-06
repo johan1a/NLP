@@ -79,7 +79,7 @@ public class CorpusParser {
 		}
 	}
 
-	private boolean isEmpty(String line) {
+	private static boolean isEmpty(String line) {
 		return line.isEmpty() || line.startsWith("\t");
 	}
 
