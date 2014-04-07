@@ -59,7 +59,6 @@ public class CorpusParser {
 					/* length without BOS and EOS */
 					if (sentenceLength - 2 < n) {
 						sentenceList.add(currentSentence);
-
 					}
 
 					line = r.readLine();
@@ -154,7 +153,7 @@ public class CorpusParser {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 			for (Sentence sentence : sentences) {
 				int index = 1;
-				if (sentence.wasTagged()) {
+				if (sentence.taggingOK()) {
 					for (SentenceElement e : sentence.getElements()) {
 						if (e.getForm().equals("<bos>")) {
 							continue;

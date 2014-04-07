@@ -1,7 +1,6 @@
 package sentenceProbability;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 public class Sentence {
 	private ArrayList<SentenceElement> elementList;
@@ -54,7 +53,7 @@ public class Sentence {
 		return probability;
 	}
 
-	public boolean wasTagged() {
+	public boolean taggingOK() {
 		return wasTagged;
 	}
 

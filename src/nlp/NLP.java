@@ -3,7 +3,7 @@ package nlp;
 import java.util.LinkedList;
 
 import sentenceProbability.Sentence;
-import sentenceProbability.ViterbiTagger;
+import viterbi.ViterbiTagger;
 
 public class NLP {
 	private String trainingSet = "corpus/CoNLL2009-ST-English-train-pos.txt";
@@ -18,7 +18,7 @@ public class NLP {
 	}
 
 	public static void main(String[] args) {
-		int maxSentenceLength = 9;
+		int maxSentenceLength = 1000000;
 
 		boolean tag = false;
 		boolean eval = false;

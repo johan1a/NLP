@@ -3,9 +3,9 @@ public class Bigram {
 
 	private String lastPos, secondPos;
 
-	public Bigram(String f, String s) {
-		lastPos = f;
-		secondPos = s;
+	public Bigram(String prevPos, String pos) {
+		lastPos = prevPos;
+		secondPos = pos;
 	}
 
 	public String getFirst() {

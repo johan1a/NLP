@@ -16,7 +16,7 @@ public class Evaluator {
 		System.out.println("Evaluating...");
 		SentenceElement e;
 		for (Sentence sentence : sentences) {
-			if (sentence.wasTagged()) {
+			if (sentence.taggingOK()) {
 				/* Don't evaluate <bos> and <eos> */
 				for (int i = 1; i < sentence.getSize() - 1; i++) {
 					e = sentence.getElement(i);
